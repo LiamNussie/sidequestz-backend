@@ -34,6 +34,14 @@ export class MailService {
     });
   }
 
+  async sendHtmlEmail(
+    to: string,
+    subject: string,
+    html: string,
+  ): Promise<void> {
+    await this.sendTransactional({ to, subject, html });
+  }
+
   private async sendTransactional(params: {
     to: string;
     subject: string;

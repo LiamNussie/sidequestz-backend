@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { NotificationsService } from '../notifications/notifications.service';
 import { User, UserDocument } from '../users/schemas/user.schema';
 import { CreateSuggestedQuestDto } from './dto/create-suggested-quest.dto';
 import { GetSuggestedQuestsQueryDto } from './dto/get-suggested-quests-query.dto';
@@ -21,18 +22,21 @@ export class SuggestedQuestsService {
     private readonly suggestedQuestModel: Model<SuggestedQuestDocument>,
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
-  create(
+  async create(
     dto: CreateSuggestedQuestDto,
     creatorId: string,
     creatorEmail: string,
   ): Promise<SuggestedQuestDocument> {
-    return this.suggestedQuestModel.create({
+    const doc = await this.suggestedQuestModel.create({
       ...dto,
       creatorId,
       creatorEmail: creatorEmail.toLowerCase(),
     });
+    this.notificationsService.notifySuggestedQuestCreated(creatorId, doc.title);
+    return doc;
   }
 
   async findAll(query: GetSuggestedQuestsQueryDto): Promise<{
@@ -143,6 +147,11 @@ export class SuggestedQuestsService {
       throw new NotFoundException('Suggested quest not found');
     }
 
+    this.notificationsService.notifySuggestedQuestUpdated(
+      userId,
+      updated.title,
+    );
+
     return updated;
   }
 
@@ -161,6 +170,18 @@ export class SuggestedQuestsService {
     if (!isCreator && !isAdmin) {
       throw new ForbiddenException(
         'Only the creator or an admin can delete this suggestion',
+      );
+    }
+
+    if (isAdmin && !isCreator) {
+      this.notificationsService.notifySuggestedQuestDeletedByAdmin(
+        quest.creatorId,
+        quest.title,
+      );
+    } else {
+      this.notificationsService.notifySuggestedQuestDeletedBySelf(
+        quest.creatorId,
+        quest.title,
       );
     }
 
@@ -188,6 +209,14 @@ export class SuggestedQuestsService {
     quest.downvotes = quest.downvoterIds.length;
 
     await quest.save();
+    const upvotes = quest.upvotes;
+    if (upvotes > 0 && upvotes % 5 === 0) {
+      this.notificationsService.notifySuggestedQuestUpvoteMilestone(
+        quest.creatorId,
+        quest.title,
+        upvotes,
+      );
+    }
     return this.findOne(id);
   }
 

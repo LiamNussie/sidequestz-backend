@@ -31,6 +31,10 @@ export class User {
   @Prop({ type: Number, default: 0, min: 0 })
   totalXp: number;
 
+  /** Set whenever `totalXp` increases; used for leaderboard ties (earlier = higher rank). */
+  @Prop({ type: Date, default: null })
+  lastXpMilestoneAt: Date | null;
+
   @Prop({ type: String, trim: true, unique: true, sparse: true, default: null })
   username: string | null;
 
@@ -76,3 +80,5 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.index({ totalXp: -1, lastXpMilestoneAt: 1, createdAt: 1 });

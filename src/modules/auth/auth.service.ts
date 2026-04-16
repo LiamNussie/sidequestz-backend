@@ -10,6 +10,7 @@ import { compare as bcryptCompare, hash as bcryptHash } from 'bcryptjs';
 import { randomInt } from 'node:crypto';
 import { AppConfigService } from '../../core/config/app-config.service';
 import { MailService } from '../mail/mail.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { UsersService } from '../users/users.service';
 import { UserRole, UserSocials } from '../users/schemas/user.schema';
 import { LoginDto } from './dto/login.dto';
@@ -93,6 +94,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly appConfig: AppConfigService,
     private readonly mailService: MailService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<RegisterResponse> {
@@ -125,6 +127,8 @@ export class AuthService {
       );
       throw error;
     }
+
+    this.notificationsService.notifyRegistrationPending(createdUser.id);
 
     return {
       message:
@@ -180,6 +184,11 @@ export class AuthService {
       await hashSecret(tokens.refreshToken, 12),
     );
 
+    this.notificationsService.notifyEmailVerified(
+      refreshed.id,
+      refreshed.email,
+    );
+
     return { user: this.toSafeUser(refreshed), tokens };
   }
 
@@ -232,6 +241,8 @@ export class AuthService {
       await hashSecret(tokens.refreshToken, 12),
     );
 
+    this.notificationsService.notifyLoginSuccess(user.id);
+
     return { user: this.toSafeUser(user), tokens };
   }
 
@@ -243,6 +254,7 @@ export class AuthService {
       const expiresAt = this.buildOtpExpiryDate();
       await this.usersService.setPasswordResetOtp(user.id, otpHash, expiresAt);
       await this.mailService.sendPasswordResetOtp(user.email, otp);
+      this.notificationsService.notifyPasswordResetRequested(user.id);
     }
     return { message: GENERIC_EMAIL_SENT };
   }
@@ -291,6 +303,8 @@ export class AuthService {
       user.id,
       passwordHash,
     );
+
+    this.notificationsService.notifyPasswordResetSuccess(user.id, user.email);
 
     return { message: 'Password was reset successfully' };
   }
@@ -342,6 +356,8 @@ export class AuthService {
       socials,
     });
 
+    this.notificationsService.notifyOnboardingCompleted(userId);
+
     const refreshed = await this.usersService.findById(userId);
     if (!refreshed) {
       throw new UnauthorizedException('User no longer exists');
@@ -382,6 +398,7 @@ export class AuthService {
 
   async logout(userId: string): Promise<{ message: string }> {
     await this.usersService.setRefreshTokenHash(userId, null);
+    this.notificationsService.notifyLogout(userId);
     return { message: 'Logged out successfully' };
   }
 

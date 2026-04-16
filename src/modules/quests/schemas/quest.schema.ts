@@ -33,6 +33,9 @@ export class Quest {
 
   @Prop({ required: true, min: 0, default: 0 })
   completedCount: number;
+
+  @Prop({ required: true, min: 0 })
+  xpReward: number;
 }
 
 export const QuestSchema = SchemaFactory.createForClass(Quest);

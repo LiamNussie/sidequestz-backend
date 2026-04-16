@@ -47,4 +47,9 @@ export class UpdateQuestDto {
   @IsInt()
   @Min(0)
   completedCount?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  xpReward?: number;
 }

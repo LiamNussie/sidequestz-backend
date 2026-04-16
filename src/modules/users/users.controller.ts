@@ -15,6 +15,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
+import { NotificationsService } from '../notifications/notifications.service';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { GetUsersQueryDto } from './dto/get-users-query.dto';
 import { UserRole, UserSocials } from './schemas/user.schema';
@@ -48,7 +49,10 @@ const isAtLeast18YearsOld = (date: Date): boolean => {
 @UseGuards(AccessTokenGuard)
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   @UseGuards(RolesGuard)
   @Roles('admin')
@@ -148,6 +152,8 @@ export class UsersController {
       throw new NotFoundException('User not found');
     }
 
+    this.notificationsService.notifyProfileUpdated(userId);
+
     return this.toUserResponse(updated);
   }
 
@@ -157,6 +163,8 @@ export class UsersController {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    this.notificationsService.notifyAccountDeleted(user.email);
+    await this.notificationsService.purgeUserData(userId);
     await this.usersService.deleteUserById(userId);
     return { message: 'Account deleted successfully' };
   }

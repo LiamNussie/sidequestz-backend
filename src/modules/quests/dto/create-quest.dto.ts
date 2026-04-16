@@ -2,8 +2,11 @@ import {
   ArrayMinSize,
   IsArray,
   IsEnum,
+  IsInt,
+  IsOptional,
   IsString,
   MaxLength,
+  Min,
 } from 'class-validator';
 import { QUEST_DIFFICULTIES } from '../schemas/quest.schema';
 import type { QuestDifficulty } from '../schemas/quest.schema';
@@ -29,4 +32,9 @@ export class CreateQuestDto {
   @ArrayMinSize(1)
   @IsString({ each: true })
   instructions: string[];
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  xpReward?: number;
 }

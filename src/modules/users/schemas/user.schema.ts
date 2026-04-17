@@ -3,6 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 export type UserRole = 'user' | 'admin';
+export type UserGender = 'male' | 'female';
 export type UserSocials = {
   x?: string;
   instagram?: string;
@@ -40,6 +41,13 @@ export class User {
 
   @Prop({ type: Date, default: null })
   dateOfBirth: Date | null;
+
+  @Prop({
+    type: String,
+    enum: ['male', 'female'],
+    default: null,
+  })
+  gender: UserGender | null;
 
   @Prop({ type: String, default: null })
   avatar: string | null;

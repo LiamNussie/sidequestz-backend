@@ -12,7 +12,7 @@ import { AppConfigService } from '../../core/config/app-config.service';
 import { MailService } from '../mail/mail.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { UsersService } from '../users/users.service';
-import { UserRole, UserSocials } from '../users/schemas/user.schema';
+import { UserGender, UserRole, UserSocials } from '../users/schemas/user.schema';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { AuthTokensDto } from './dto/auth-tokens.dto';
@@ -57,6 +57,7 @@ type SafeUser = {
   totalXp: number;
   username: string | null;
   dateOfBirth: string | null;
+  gender: UserGender | null;
   avatar: string | null;
   profileImages: string[];
   socials: UserSocials;
@@ -440,6 +441,7 @@ export class AuthService {
     totalXp?: number;
     username?: string | null;
     dateOfBirth?: Date | string | null;
+    gender?: UserGender | null;
     avatar?: string | null;
     profileImages?: string[];
     socials?: UserSocials;
@@ -462,6 +464,7 @@ export class AuthService {
       totalXp: user.totalXp ?? 0,
       username: user.username ?? null,
       dateOfBirth: dobIso,
+      gender: user.gender ?? null,
       avatar: user.avatar ?? null,
       profileImages: user.profileImages ?? [],
       socials: user.socials ?? { x: '', instagram: '', tiktok: '' },

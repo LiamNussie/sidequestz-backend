@@ -18,7 +18,7 @@ import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { NotificationsService } from '../notifications/notifications.service';
 import { UpdateMyProfileDto } from './dto/update-my-profile.dto';
 import { GetUsersQueryDto } from './dto/get-users-query.dto';
-import { UserRole, UserSocials } from './schemas/user.schema';
+import { UserGender, UserRole, UserSocials } from './schemas/user.schema';
 import { UsersService } from './users.service';
 
 type UserResponse = {
@@ -31,6 +31,7 @@ type UserResponse = {
   totalXp: number;
   username: string | null;
   dateOfBirth: string | null;
+  gender: UserGender | null;
   avatar: string | null;
   profileImages: string[];
   socials: UserSocials;
@@ -95,6 +96,7 @@ export class UsersController {
       name?: string;
       username?: string;
       dateOfBirth?: Date;
+      gender?: UserGender;
       avatar?: string;
       profileImages?: string[];
       socials?: UserSocials;
@@ -123,6 +125,10 @@ export class UsersController {
         throw new BadRequestException('You must be at least 18 years old');
       }
       payload.dateOfBirth = dob;
+    }
+
+    if (dto.gender !== undefined) {
+      payload.gender = dto.gender;
     }
 
     if (dto.avatar !== undefined) {
@@ -179,6 +185,7 @@ export class UsersController {
     totalXp?: number;
     username?: string | null;
     dateOfBirth?: Date | string | null;
+    gender?: UserGender | null;
     avatar?: string | null;
     profileImages?: string[];
     socials?: UserSocials;
@@ -201,6 +208,7 @@ export class UsersController {
       totalXp: user.totalXp ?? 0,
       username: user.username ?? null,
       dateOfBirth,
+      gender: user.gender ?? null,
       avatar: user.avatar ?? null,
       profileImages: user.profileImages ?? [],
       socials: user.socials ?? { x: '', instagram: '', tiktok: '' },

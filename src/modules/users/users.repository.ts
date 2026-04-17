@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, UserDocument, UserSocials } from './schemas/user.schema';
+import { User, UserDocument, UserGender, UserSocials } from './schemas/user.schema';
 
 const SENSITIVE_SELECT =
   '+passwordHash +refreshTokenHash +emailVerificationOtpHash +emailVerificationOtpExpiresAt +passwordResetOtpHash +passwordResetOtpExpiresAt';
@@ -27,6 +27,7 @@ type UpdateProfileInput = {
   name?: string;
   username?: string;
   dateOfBirth?: Date;
+  gender?: UserGender;
   avatar?: string;
   profileImages?: string[];
   socials?: UserSocials;

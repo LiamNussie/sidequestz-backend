@@ -3,6 +3,7 @@ import {
   ArrayMaxSize,
   IsArray,
   IsDateString,
+  IsIn,
   IsOptional,
   IsString,
   MaxLength,
@@ -40,6 +41,10 @@ export class UpdateMyProfileDto {
   @IsOptional()
   @IsDateString()
   dateOfBirth?: string;
+
+  @IsOptional()
+  @IsIn(['male', 'female'])
+  gender?: 'male' | 'female';
 
   @IsOptional()
   @IsString()

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserDocument, UserSocials } from './schemas/user.schema';
+import { UserDocument, UserGender, UserSocials } from './schemas/user.schema';
 import { UsersRepository } from './users.repository';
 
 type CreateUserInput = {
@@ -23,6 +23,7 @@ type UpdateProfileInput = {
   name?: string;
   username?: string;
   dateOfBirth?: Date;
+  gender?: UserGender;
   avatar?: string;
   profileImages?: string[];
   socials?: UserSocials;

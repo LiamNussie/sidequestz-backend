@@ -8,6 +8,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 import { Event, EventDocument } from '../events/schemas/event.schema';
+import { NotificationsService } from '../notifications/notifications.service';
 import { UserGender } from '../users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
 import { CreateLynkupDto } from './dto/create-lynkup.dto';
@@ -45,6 +46,7 @@ export class LynkupsService {
     @InjectModel(Lynkup.name) private readonly lynkupModel: Model<LynkupDocument>,
     @InjectModel(Event.name) private readonly eventModel: Model<EventDocument>,
     private readonly usersService: UsersService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(
@@ -132,6 +134,16 @@ export class LynkupsService {
 
     if (!updated) {
       throw new NotFoundException('Lynkup not found');
+    }
+
+    if (updated.creatorId !== userId) {
+      const joiner = await this.usersService.findById(userId);
+      const joinerName = joiner?.name ?? 'Someone';
+      this.notificationsService.notifyLynkupParticipantJoined(updated.creatorId, {
+        lynkupId,
+        lynkupTitle: updated.title,
+        joinerName,
+      });
     }
 
     return this.findDocumentByIdOrThrow(lynkupId);
@@ -364,6 +376,27 @@ export class LynkupsService {
 
     await this.lynkupModel.findByIdAndDelete(id).exec();
     return { message: 'Lynkup deleted successfully' };
+  }
+
+  /**
+   * Loads the lynkup and ensures `userId` is in `participants` (for chat, etc.).
+   * Document is not populated.
+   */
+  async requireParticipantAccess(
+    lynkupId: string,
+    userId: string,
+  ): Promise<LynkupDocument> {
+    if (!isValidObjectId(lynkupId)) {
+      throw new BadRequestException('Invalid lynkup id');
+    }
+    const lynkup = await this.lynkupModel.findById(lynkupId).exec();
+    if (!lynkup) {
+      throw new NotFoundException('Lynkup not found');
+    }
+    if (!lynkup.participants.includes(userId)) {
+      throw new ForbiddenException('Only lynkup participants can use this chat');
+    }
+    return lynkup;
   }
 
   private assertParticipantGenderAllowed(

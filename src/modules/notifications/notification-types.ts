@@ -21,6 +21,11 @@ export const NotificationType = {
   SUGGESTED_QUEST_DELETED: 'suggested_quest_deleted',
   SUGGESTED_QUEST_DELETED_BY_ADMIN: 'suggested_quest_deleted_by_admin',
   SUGGESTED_QUEST_UPVOTE_MILESTONE: 'suggested_quest_upvote_milestone',
+  LYNKUP_CHAT_MESSAGE: 'lynkup_chat_message',
+  LYNKUP_PARTICIPANT_JOINED: 'lynkup_participant_joined',
+  LYNK_REQUEST_RECEIVED: 'lynk_request_received',
+  LYNK_REQUEST_ACCEPTED: 'lynk_request_accepted',
+  LYNK_REQUEST_DECLINED: 'lynk_request_declined',
 } as const;
 
 export type NotificationTypeValue =

@@ -487,4 +487,85 @@ export class NotificationsService {
       metadata: { title, upvotes },
     });
   }
+
+  notifyLynkupChatMessage(
+    recipientUserId: string,
+    input: { lynkupId: string; senderName: string; preview: string },
+  ): void {
+    const preview =
+      input.preview.length > 120
+        ? `${input.preview.slice(0, 117)}…`
+        : input.preview;
+    this.fireAndForget({
+      userId: recipientUserId,
+      type: NotificationType.LYNKUP_CHAT_MESSAGE,
+      title: `${input.senderName}`,
+      body: preview,
+      metadata: {
+        lynkupId: input.lynkupId,
+        senderName: input.senderName,
+      },
+    });
+  }
+
+  notifyLynkupParticipantJoined(
+    hostUserId: string,
+    input: { lynkupId: string; lynkupTitle: string; joinerName: string },
+  ): void {
+    this.fireAndForget({
+      userId: hostUserId,
+      type: NotificationType.LYNKUP_PARTICIPANT_JOINED,
+      title: 'Someone joined your lynkup',
+      body: `${input.joinerName} joined “${input.lynkupTitle}”.`,
+      metadata: {
+        lynkupId: input.lynkupId,
+        lynkupTitle: input.lynkupTitle,
+        joinerName: input.joinerName,
+      },
+    });
+  }
+
+  notifyLynkRequestReceived(
+    recipientUserId: string,
+    input: { requestId: string; fromName: string },
+  ): void {
+    this.fireAndForget({
+      userId: recipientUserId,
+      type: NotificationType.LYNK_REQUEST_RECEIVED,
+      title: 'New lynk request',
+      body: `${input.fromName} wants to connect.`,
+      metadata: { requestId: input.requestId, fromName: input.fromName },
+    });
+  }
+
+  notifyLynkRequestAccepted(
+    senderUserId: string,
+    input: { requestId: string; conversationId: string; peerName: string },
+  ): void {
+    this.fireAndForget({
+      userId: senderUserId,
+      type: NotificationType.LYNK_REQUEST_ACCEPTED,
+      title: 'Lynk request accepted',
+      body: `${input.peerName} accepted your request. You can chat now.`,
+      metadata: {
+        requestId: input.requestId,
+        conversationId: input.conversationId,
+        peerName: input.peerName,
+      },
+    });
+  }
+
+  notifyLynkRequestDeclined(
+    senderUserId: string,
+    input: { requestId: string; peerName: string },
+  ): void {
+    this.fireAndForget({
+      userId: senderUserId,
+      type: NotificationType.LYNK_REQUEST_DECLINED,
+      title: 'Lynk request declined',
+      body: `${input.peerName} declined your request.`,
+      metadata: { requestId: input.requestId, peerName: input.peerName },
+      skipPush: true,
+    });
+  }
 }

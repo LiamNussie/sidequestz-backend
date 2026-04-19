@@ -46,6 +46,24 @@ export class AppConfigService {
     return this.configService.getOrThrow<string>('mail.mailFrom');
   }
 
+  getRedisUrl(): string {
+    return this.configService.getOrThrow<string>('redis.url');
+  }
+
+  getLynkFinderRadiusM(): number {
+    return this.configService.getOrThrow<number>('lynkFinder.radiusM');
+  }
+
+  getLynkFinderPresenceTtlSeconds(): number {
+    return this.configService.getOrThrow<number>('lynkFinder.presenceTtlSeconds');
+  }
+
+  getLynkFinderMinUpdateIntervalMs(): number {
+    return this.configService.getOrThrow<number>(
+      'lynkFinder.minUpdateIntervalMs',
+    );
+  }
+
   getOtpExpiresMinutes(): number {
     const raw: unknown = this.configService.get('mail.otpExpiresMinutes');
     if (typeof raw === 'number' && Number.isFinite(raw)) {

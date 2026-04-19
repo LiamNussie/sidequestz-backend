@@ -16,4 +16,16 @@ export const envValidationSchema = Joi.object({
   RESEND_API_KEY: Joi.string().allow('').optional(),
   MAIL_FROM: Joi.string().default('Sidequestz <onboarding@resend.dev>'),
   OTP_EXPIRES_MINUTES: Joi.number().integer().min(1).max(60).default(10),
+  REDIS_URL: Joi.string().optional(),
+  LYNKFINDER_RADIUS_M: Joi.number().integer().min(50).max(5000).optional(),
+  LYNKFINDER_PRESENCE_TTL_SECONDS: Joi.number()
+    .integer()
+    .min(15)
+    .max(600)
+    .optional(),
+  LYNKFINDER_MIN_UPDATE_INTERVAL_MS: Joi.number()
+    .integer()
+    .min(500)
+    .max(60_000)
+    .optional(),
 });

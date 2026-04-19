@@ -55,4 +55,24 @@ export default () => ({
     mailFrom: process.env.MAIL_FROM ?? 'Sidequestz <onboarding@resend.dev>',
     otpExpiresMinutes: toNumber(process.env.OTP_EXPIRES_MINUTES, 10),
   },
+  redis: {
+    url: process.env.REDIS_URL ?? 'redis://127.0.0.1:6379',
+  },
+  lynkFinder: {
+    /** Search radius in meters (default 500m). */
+    radiusM: toNumber(process.env.LYNKFINDER_RADIUS_M, 500),
+    /**
+     * Presence TTL in seconds. Should exceed the client’s max gap between
+     * location updates (recommend TTL ≥ 2–3× client push interval).
+     */
+    presenceTtlSeconds: toNumber(
+      process.env.LYNKFINDER_PRESENCE_TTL_SECONDS,
+      60,
+    ),
+    /** Minimum milliseconds between accepted location updates per user. */
+    minUpdateIntervalMs: toNumber(
+      process.env.LYNKFINDER_MIN_UPDATE_INTERVAL_MS,
+      3000,
+    ),
+  },
 });
